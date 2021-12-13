@@ -2,5 +2,7 @@
 
 Toolbox for image manipulation
 
-Includes:
-Contrast slider
+## Features:
+- Contrast control
+- Brightness control
+- Save in JPEG,PNG,TIFF

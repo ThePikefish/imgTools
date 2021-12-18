@@ -21,6 +21,8 @@ sharpness_radius_val = 10
 sharpness_threshold_val = 6
 blur_val = 0
 scale_length = 200
+mirrored = False
+rotate_val = False
 quality_val = 95
 
 scale_style = {
@@ -47,7 +49,7 @@ win.geometry("1280x720")
 style = ttk.Style()
 style.theme_use('clam')
 
-# Toolbar
+# Toolbar, statusbar, main
 toolbar = tk.Frame(win, background="#373737", height=20)
 statusbar = tk.Frame(win, background="#262626", height=10)
 main = tk.PanedWindow(win, background="#282828")
@@ -67,13 +69,18 @@ right_pane.add(notebook, stretch="always")
 
 # Image container
 image_container = tk.Canvas(left_pane, borderwidth=10, height="600", width="1000", background="#282828", highlightbackground="#282828")
-
 image_container.pack()
+
+# Button style
+button_style = ttk.Style()
+button_style.theme_use("alt")
+button_style.configure("TButton", background="#454545", foreground="#A2A2A2")
+button_style.map("TButton", background=[("active", "#A2A2A2")], foreground=[("active", "black")])
 
 
 # Update image
 def update_image(img, save=False):
-    global preview_img, contrast_val, brightness_val, sharpness_val, saturation_val, blur_val, sharpness_radius_val, sharpness_threshold_val
+    global preview_img, contrast_val, brightness_val, sharpness_val, saturation_val, blur_val, sharpness_radius_val, sharpness_threshold_val, mirrored
     if img == None:
         return
 
@@ -86,6 +93,15 @@ def update_image(img, save=False):
     imgMod = imgMod.filter(ImageFilter.UnsharpMask(radius=sharpness_radius_val*width/20000, percent=sharpness, threshold=sharpness_threshold_val))
     imgMod = ImageEnhance.Color(imgMod).enhance(saturation_val/50)
     imgMod = imgMod.filter(ImageFilter.GaussianBlur(blur_val*width/5000))
+    if mirrored:
+        imgMod = imgMod.transpose(Image.FLIP_LEFT_RIGHT)
+    if rotate_val != 0:
+        if rotate_val == 90:
+            imgMod = imgMod.transpose(Image.ROTATE_90)
+        if rotate_val == 180:
+            imgMod = imgMod.transpose(Image.ROTATE_180)
+        if rotate_val == 270:
+            imgMod = imgMod.transpose(Image.ROTATE_270)
 
     # Apply to thumbnail or final
     if (save == False):
@@ -105,11 +121,6 @@ def open_image():
     except:
         messagebox.showerror("Virhe", "Kuvan lataamisessa oli virhe.")
         pass
-
-button_style = ttk.Style()
-button_style.theme_use("alt")
-style.configure("TButton", background="#454545", foreground="#A2A2A2")
-style.map("TButton", background=[("active", "#A2A2A2")], foreground=[("active", "black")])
 
 open_button = ttk.Button(toolbar, text="Avaa kuva", command=open_image)
 open_button.pack(side="left", fill="y", ipadx=10, pady=5, padx=5)
@@ -191,6 +202,35 @@ def change_quality(var):
     global quality_val
     quality_val = int(var)
 
+# Mirror
+def mirror():
+    global img, mirrored
+    if img:
+        if mirrored == False:
+            mirrored = True
+        else:
+            mirrored = False
+        img.thumbnail((1000, 600))
+        update_image(img)
+
+# Rotate
+def rotate():
+    global img, rotate_val
+    if img:
+        rotate_val = rotate_val + 90
+        if rotate_val > 270:
+            rotate_val = 0
+        img.thumbnail((1000, 600))
+        update_image(img)
+
+# Tool buttons
+mirror_button = ttk.Button(toolbar, text="Peilikuva", command=mirror)
+mirror_button.pack(side="right", fill="y", ipadx=10, pady=5, padx=5)
+
+rotate_button = ttk.Button(toolbar, text="Käännä 90", command=rotate)
+rotate_button.pack(side="right", fill="y", ipadx=10, pady=5, padx=5)
+
+# Sliders
 vbrightness = tk.IntVar()
 scale_brightness = tk.Scale(right_pane, label="Kirkkaus", variable=vbrightness, command=change_brightness, **scale_style)
 scale_brightness.set(brightness_val)

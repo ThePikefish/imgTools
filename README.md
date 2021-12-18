@@ -10,6 +10,7 @@ Toolbox for image manipulation
 - Blur
 - Save in JPEG,PNG,TIFF
 - Quality compression
+- Rotate, mirror
 
 ### Depencies
 - python3

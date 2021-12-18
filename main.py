@@ -1,10 +1,43 @@
 
+##  imgTools
+#   Toolbox for image manipulation
+#   by: Kristo Jonsson
+#   https://github.com/ThePikefish/imgTools
+
+
 import tkinter as tk
 from tkinter import StringVar, ttk, Button, Label, image_types, filedialog
 from tkinter import messagebox
 from tkinter.messagebox import showinfo
-
 from PIL import Image, ImageTk, ImageFilter, ImageEnhance
+
+# Settings
+img = None
+brightness_val = 50
+contrast_val = 50
+saturation_val = 50
+sharpness_val = 0
+sharpness_radius_val = 10
+sharpness_threshold_val = 6
+blur_val = 0
+scale_length = 200
+quality_val = 95
+
+scale_style = {
+    "from_":        0,
+    "to":           100,
+    "length":       scale_length,
+    "sliderlength": 20,
+    "orient":       "horizontal",
+    "fg":           "#A2A2A2",
+    "bg":           "#454545",
+    "troughcolor":  "#303030",
+    "activebackground":"#A2A2A2",
+    "highlightbackground":"#303030",
+    "bd":           1,
+    "relief":       "flat"
+}
+
 
 # Init tkinter window
 win = tk.Tk()
@@ -15,7 +48,7 @@ style = ttk.Style()
 style.theme_use('clam')
 
 # Toolbar
-toolbar = tk.Frame(win, background="#262626", height=20)
+toolbar = tk.Frame(win, background="#373737", height=20)
 statusbar = tk.Frame(win, background="#262626", height=10)
 main = tk.PanedWindow(win, background="#282828")
 
@@ -33,20 +66,9 @@ notebook = tk.Frame(right_pane, background="#373737", height=70)
 right_pane.add(notebook, stretch="always")
 
 # Image container
-image_container = tk.Canvas(left_pane, borderwidth=10, relief="groove", height="600", width="1000", background="#282828")
+image_container = tk.Canvas(left_pane, borderwidth=10, height="600", width="1000", background="#282828", highlightbackground="#282828")
 
 image_container.pack()
-
-img = None
-contrast_val = 50
-brightness_val = 50
-sharpness_val = 0
-sharpness_radius_val = 10
-sharpness_threshold_val = 6
-saturation_val = 50
-blur_val = 0
-scale_length = 200
-quality_val = 95
 
 
 # Update image
@@ -84,8 +106,13 @@ def open_image():
         messagebox.showerror("Virhe", "Kuvan lataamisessa oli virhe.")
         pass
 
+button_style = ttk.Style()
+button_style.theme_use("alt")
+style.configure("TButton", background="#454545", foreground="#A2A2A2")
+style.map("TButton", background=[("active", "#A2A2A2")], foreground=[("active", "black")])
+
 open_button = ttk.Button(toolbar, text="Avaa kuva", command=open_image)
-open_button.pack(side="left")
+open_button.pack(side="left", fill="y", ipadx=10, pady=5, padx=5)
 
 
 # Save image
@@ -101,8 +128,15 @@ def save_image():
             final.save(name + "." + ext.get().lower(), quality=quality_val, subsampling=0)
 
 save_button = ttk.Button(toolbar, text="Tallenna kuva", command=save_image)
-save_button.pack(side="left")
+save_button.pack(side="left", fill="y", ipadx=10, pady=5, padx=5)
 
+# Brightness
+def change_brightness(var):
+    global img, brightness_val
+    if img:
+        brightness_val = int(var)
+        img.thumbnail((1000, 600))
+        update_image(img)
 
 # Contrast
 def change_contrast(var):
@@ -112,11 +146,11 @@ def change_contrast(var):
         img.thumbnail((1000, 600))
         update_image(img)
 
-# Brightness
-def change_brightness(var):
-    global img, brightness_val
+# Saturation
+def change_saturation(var):
+    global img, saturation_val
     if img:
-        brightness_val = int(var)
+        saturation_val = int(var)
         img.thumbnail((1000, 600))
         update_image(img)
 
@@ -144,14 +178,6 @@ def change_sharpness_threshold(var):
         img.thumbnail((1000, 600))
         update_image(img)
 
-# Saturation
-def change_saturation(var):
-    global img, saturation_val
-    if img:
-        saturation_val = int(var)
-        img.thumbnail((1000, 600))
-        update_image(img)
-
 # Blur
 def change_blur(var):
     global img, blur_val
@@ -165,46 +191,45 @@ def change_quality(var):
     global quality_val
     quality_val = int(var)
 
-
-
-vcontrast = tk.IntVar()
-scale_contrast = tk.Scale(right_pane, label="Kontrasti", from_=0, to=100, length=scale_length, variable=vcontrast, orient="horizontal", command=change_contrast, bg="#454545", troughcolor="#555555", highlightbackground="#303030")
-scale_contrast.set(50)
-scale_contrast.pack()
-
 vbrightness = tk.IntVar()
-scale_brightness = tk.Scale(right_pane, label="Kirkkaus", from_=0, to=100, length=scale_length, variable=vbrightness, orient="horizontal", command=change_brightness, bg="#454545", troughcolor="#555555", highlightbackground="#303030")
-scale_brightness.set(50)
+scale_brightness = tk.Scale(right_pane, label="Kirkkaus", variable=vbrightness, command=change_brightness, **scale_style)
+scale_brightness.set(brightness_val)
 scale_brightness.pack()
 
+vcontrast = tk.IntVar()
+scale_contrast = tk.Scale(right_pane, label="Kontrasti", variable=vcontrast, command=change_contrast, **scale_style)
+scale_contrast.set(contrast_val)
+scale_contrast.pack()
+
+vsaturation = tk.IntVar()
+scale_saturation = tk.Scale(right_pane, label="Värikylläisyys", variable=vsaturation, command=change_saturation, **scale_style)
+scale_saturation.set(saturation_val)
+scale_saturation.pack()
+
 vsharpness = tk.IntVar()
-scale_sharpness = tk.Scale(right_pane, label="Terävöinti", from_=0, to=100, length=scale_length, variable=vsharpness, orient="horizontal", command=change_sharpness, bg="#454545", troughcolor="#555555", highlightbackground="#303030")
-scale_sharpness.set(0)
+scale_sharpness = tk.Scale(right_pane, label="Terävöinti", variable=vsharpness, command=change_sharpness, **scale_style)
+scale_sharpness.set(sharpness_val)
 scale_sharpness.pack()
 
 vsharpness_radius = tk.IntVar()
-scale_sharpness_radius = tk.Scale(right_pane, label="Terävöinti tarkkuus", from_=0, to=100, length=scale_length, variable=vsharpness_radius, orient="horizontal", command=change_sharpness_radius, bg="#454545", troughcolor="#555555", highlightbackground="#303030")
-scale_sharpness_radius.set(10)
+scale_sharpness_radius = tk.Scale(right_pane, label="Terävöinti tarkkuus", variable=vsharpness_radius, command=change_sharpness_radius, **scale_style)
+scale_sharpness_radius.set(sharpness_radius_val)
 scale_sharpness_radius.pack()
 
 vsharpness_threshold = tk.IntVar()
-scale_sharpness_threshold = tk.Scale(right_pane, label="Terävöinti kynnys", from_=0, to=100, length=scale_length, variable=vsharpness_threshold, orient="horizontal", command=change_sharpness_threshold, bg="#454545", troughcolor="#555555", highlightbackground="#303030")
-scale_sharpness_threshold.set(6)
+scale_sharpness_threshold = tk.Scale(right_pane, label="Terävöinti kynnys", variable=vsharpness_threshold, command=change_sharpness_threshold, **scale_style)
+scale_sharpness_threshold.set(sharpness_threshold_val)
 scale_sharpness_threshold.pack()
 
-vsaturation = tk.IntVar()
-scale_saturation = tk.Scale(right_pane, label="Värikylläisyys", from_=0,  to=100, length=scale_length, variable=vsaturation, orient="horizontal", command=change_saturation, bg="#454545", troughcolor="#555555", highlightbackground="#303030")
-scale_saturation.set(50)
-scale_saturation.pack()
-
 vblur = tk.IntVar()
-scale_blur = tk.Scale(right_pane, label="Sumennus", from_=0,  to=100, length=scale_length, variable=vblur, orient="horizontal", command=change_blur, bg="#454545", troughcolor="#555555", highlightbackground="#303030")
-scale_blur.set(0)
+scale_blur = tk.Scale(right_pane, label="Sumennus", variable=vblur, command=change_blur, **scale_style)
+scale_blur.set(blur_val)
 scale_blur.pack()
 
 vquality = tk.IntVar()
-scale_quality = tk.Scale(toolbar, label="Kompressiolaatu", from_=0,  to=100, length=scale_length, variable=vquality, command=change_quality, orient="horizontal",  bg="#454545", troughcolor="#303030", highlightbackground="#303030")
-scale_quality.set(95)
-scale_quality.pack(side="left")
+scale_quality = tk.Scale(toolbar, label="Kompressiolaatu", variable=vquality, command=change_quality, **scale_style)
+scale_quality.set(quality_val)
+scale_quality.pack(side="left", ipadx=10, pady=5, padx=5)
+
 
 win.mainloop()

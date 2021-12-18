@@ -10,3 +10,7 @@ Toolbox for image manipulation
 - Blur
 - Save in JPEG,PNG,TIFF
 - Quality compression
+
+### Depencies
+- python3
+- Pillow

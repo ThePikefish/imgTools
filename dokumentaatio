@@ -10,3 +10,5 @@ Nappien ja sliderien toiminnot on jaettu niitä kuvaaviin funktioihin.
 Näistä tärkeimmässä eli update_image funktiossa tapahtuu varsinainen kuvan muokkaus,
 jota kutsutaan aina kuvan muuttuessa.
 Lopussa vielä määritellään muokkaus sliderit käyttöliittymään.
+
+Toimiakseen ohjelma vaatii python3 ja PIL kirjaston jonka jälkeen suoritetaan main.py

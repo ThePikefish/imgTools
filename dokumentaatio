@@ -1,0 +1,12 @@
+Dokumentaatio
+
+imgTools on yksinkertainen ja nopeakäyttöinen kuvanmuokkausohjelma, joka sisältää minulle tärkeimmät ominaisuudet.
+Ohjelma käyttää pythonin sisäistä työkalua, tkinteriä graafisen käyttöliittymän luomiseksi käytettävyyden takia.
+Ainoana ulkoisena kirjastona käytetään kuvien hallintaan tarkoitettua Pillow (PIL) kirjastoa.
+
+Ohjelmakoodin alkuun on kirjoitettu suurinosa muuttuja-asetuksista, joista suurintaosaa voidaan helposti muunnella.
+Tämän jälkeen ohjelma alustaa graafisen käyttöliittymän ominaisuudet ja osat.
+Nappien ja sliderien toiminnot on jaettu niitä kuvaaviin funktioihin.
+Näistä tärkeimmässä eli update_image funktiossa tapahtuu varsinainen kuvan muokkaus,
+jota kutsutaan aina kuvan muuttuessa.
+Lopussa vielä määritellään muokkaus sliderit käyttöliittymään.
